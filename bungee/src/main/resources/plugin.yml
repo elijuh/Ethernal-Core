@@ -1,0 +1,4 @@
+name: Core
+version: ${project.version}
+author: elijuh
+main: me.elijuh.core.Core
