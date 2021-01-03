@@ -5,7 +5,6 @@ import me.elijuh.core.commands.SpigotCommand;
 import me.elijuh.core.data.User;
 import me.elijuh.core.utils.ChatUtil;
 import me.elijuh.core.utils.PlayerUtil;
-import me.elijuh.core.utils.StaffUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -34,7 +33,7 @@ public class MsgCommand extends SpigotCommand {
             if (targetUser == null) {
                 p.sendMessage(ChatUtil.color("&cThat player is not online!"));
             } else {
-                if (StaffUtil.isVanished(target)) {
+                if (!p.canSee(target)) {
                     p.sendMessage(ChatUtil.color("&cThat player is not online!"));
                     return;
                 }

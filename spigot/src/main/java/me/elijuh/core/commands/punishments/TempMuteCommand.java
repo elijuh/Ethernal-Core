@@ -7,17 +7,18 @@ import me.elijuh.core.data.Punishment;
 import me.elijuh.core.data.redis.PunishmentInfo;
 import me.elijuh.core.manager.DatabaseManager;
 import me.elijuh.core.utils.ChatUtil;
+import me.elijuh.core.utils.MathUtil;
 import me.elijuh.core.utils.PlayerUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class MuteCommand extends SpigotCommand {
-    private final DatabaseManager databaseManager;
+public class TempMuteCommand extends SpigotCommand {
+    DatabaseManager databaseManager;
 
-    public MuteCommand() {
-        super("mute", Lists.newArrayList(), "core.mute");
+    public TempMuteCommand() {
+        super("tempmute", Lists.newArrayList(), "core.tempmute");
         databaseManager = Core.i().getDatabaseManager();
     }
 
@@ -28,7 +29,7 @@ public class MuteCommand extends SpigotCommand {
 
     @Override
     public void onExecute(Player p, String[] args) {
-        if (args.length > 1) {
+        if (args.length > 2) {
             if (!databaseManager.hasData(args[0])) {
                 p.sendMessage(ChatUtil.color("&cThat player has never joined!"));
                 return;
@@ -38,28 +39,37 @@ public class MuteCommand extends SpigotCommand {
             String punishedDisplay = databaseManager.getDisplay(args[0]);
 
             if (databaseManager.isPunished(args[0], Punishment.MUTE)) {
-                p.sendMessage(ChatUtil.color("&cTarget is already muted!"));
+                p.sendMessage(ChatUtil.color("&c" + args[0] + " is already muted!"));
                 return;
             }
 
-            StringBuilder reason = new StringBuilder(args[1]);
+            long duration;
 
-            for (int i = 2; i < args.length; i++) {
+            try {
+                duration = MathUtil.parseDate(args[1]);
+            } catch (NumberFormatException e) {
+                p.sendMessage(ChatUtil.color("&cPlease provide a valid date! example: 30d"));
+                return;
+            }
+
+            StringBuilder reason = new StringBuilder(args[2]);
+
+            for (int i = 3; i < args.length; i++) {
                 reason.append(" ").append(args[i]);
             }
 
-            PunishmentInfo info = new PunishmentInfo(Punishment.MUTE, false, -1, reason.toString(), p.getName(),
+            PunishmentInfo info = new PunishmentInfo(Punishment.MUTE, false, duration, reason.toString(), p.getName(),
                     args[0], executorDisplay, punishedDisplay);
 
             databaseManager.punish(info);
         } else {
-            p.sendMessage(ChatUtil.color("&cUsage: /mute <player> <reason...>"));
+            p.sendMessage(ChatUtil.color("&cUsage: /tempmute <player> <time> <reason...>"));
         }
     }
 
     @Override
     public void onConsole(CommandSender sender, String[] args) {
-        if (args.length > 1) {
+        if (args.length > 2) {
             if (!databaseManager.hasData(args[0])) {
                 sender.sendMessage(ChatUtil.color("&cThat player has never joined!"));
                 return;
@@ -69,22 +79,31 @@ public class MuteCommand extends SpigotCommand {
             String punishedDisplay = databaseManager.getDisplay(args[0]);
 
             if (databaseManager.isPunished(args[0], Punishment.MUTE)) {
-                sender.sendMessage(ChatUtil.color("&cTarget is already muted!"));
+                sender.sendMessage(ChatUtil.color("&c" + args[0] + " is already muted!"));
                 return;
             }
 
-            StringBuilder reason = new StringBuilder(args[1]);
+            long duration;
 
-            for (int i = 2; i < args.length; i++) {
+            try {
+                duration = MathUtil.parseDate(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(ChatUtil.color("&cPlease provide a valid date! example: 30d"));
+                return;
+            }
+
+            StringBuilder reason = new StringBuilder(args[2]);
+
+            for (int i = 3; i < args.length; i++) {
                 reason.append(" ").append(args[i]);
             }
 
-            PunishmentInfo info = new PunishmentInfo(Punishment.MUTE, false, -1, reason.toString(), "Console",
+            PunishmentInfo info = new PunishmentInfo(Punishment.MUTE, false, duration, reason.toString(), "Console",
                     args[0], executorDisplay, punishedDisplay);
 
             databaseManager.punish(info);
         } else {
-            sender.sendMessage(ChatUtil.color("&cUsage: /mute <player> <reason...>"));
+            sender.sendMessage(ChatUtil.color("&cUsage: /tempmute <player> <time> <reason...>"));
         }
     }
 }

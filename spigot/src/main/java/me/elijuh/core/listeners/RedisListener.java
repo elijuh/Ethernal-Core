@@ -11,10 +11,8 @@ import me.elijuh.core.data.redis.UserDataUpdateInfo;
 import me.elijuh.core.manager.DatabaseManager;
 import me.elijuh.core.manager.RedisManager;
 import me.elijuh.core.utils.ChatUtil;
-import org.bukkit.Bukkit;
 
 import java.util.UUID;
-import java.util.logging.Level;
 
 public class RedisListener extends RedisPubSubAdapter<String, String> {
     RedisManager manager;
@@ -74,9 +72,9 @@ public class RedisListener extends RedisPubSubAdapter<String, String> {
                         for (User user : Core.i().getUsers()) {
                             if (user.isStaff()) {
                                 user.sendMessage("&8&m------------------------------------------");
-                                user.sendMessage("&4&lStaff &8⏐ &r" + punishment.getExecutorDisplay() + " &akicked " +
+                                user.sendMessage(punishment.getExecutorDisplay() + " &7kicked " +
                                         punishment.getPunishedDisplay());
-                                user.sendMessage("&cReason: &7" + punishment.getReason());
+                                user.sendMessage("&7Reason: &f" + punishment.getReason());
                                 user.sendMessage("&8&m------------------------------------------");
                             }
                         }
@@ -87,9 +85,9 @@ public class RedisListener extends RedisPubSubAdapter<String, String> {
                             for (User user : Core.i().getUsers()) {
                                 if (user.isStaff()) {
                                     user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage("&4&lStaff &8⏐ &r" + punishment.getExecutorDisplay() + " &aunbanned " +
+                                    user.sendMessage(punishment.getExecutorDisplay() + " &7unbanned " +
                                             punishment.getPunishedDisplay());
-                                    user.sendMessage("&cReason: &7" + punishment.getReason());
+                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
                                     user.sendMessage("&8&m------------------------------------------");
                                 }
                             }
@@ -106,10 +104,10 @@ public class RedisListener extends RedisPubSubAdapter<String, String> {
                             for (User user : Core.i().getUsers()) {
                                 if (user.isStaff()) {
                                     user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage("&4&lStaff &8⏐ &r" + punishment.getExecutorDisplay() + (perm ? " &abanned " : " &atempbanned ") +
+                                    user.sendMessage(punishment.getExecutorDisplay() + (perm ? " &7banned " : " &7temporarily banned ") +
                                             punishment.getPunishedDisplay());
-                                    user.sendMessage("&cReason: &7" + punishment.getReason());
-                                    user.sendMessage("&cDuration: &7" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())));
+                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
+                                    user.sendMessage("&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())));
                                     user.sendMessage("&8&m------------------------------------------");
                                 }
                             }
@@ -121,21 +119,14 @@ public class RedisListener extends RedisPubSubAdapter<String, String> {
                             for (User user : Core.i().getUsers()) {
                                 if (user.isStaff()) {
                                     user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage("&4&lStaff &8⏐ &r" + punishment.getExecutorDisplay() + " &aunblacklisted " +
+                                    user.sendMessage(punishment.getExecutorDisplay() + " &7unblacklisted " +
                                             punishment.getPunishedDisplay());
-                                    user.sendMessage("&cReason: &7" + punishment.getReason());
+                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
                                     user.sendMessage("&8&m------------------------------------------");
                                 }
                             }
                         } else {
                             String punished = punishment.getPunished();
-                            if (databaseManager == null) {
-                                Bukkit.getLogger().log(Level.SEVERE, "database manager is somehow null");
-                                return;
-                            } else if (punished == null) {
-                                Bukkit.getLogger().log(Level.SEVERE, "punished is somehow null");
-                                return;
-                            }
                             String uuid = databaseManager.getUUID(punished);
                             String ip = databaseManager.getIP(uuid);
 
@@ -152,17 +143,52 @@ public class RedisListener extends RedisPubSubAdapter<String, String> {
                             for (User user : Core.i().getUsers()) {
                                 if (user.isStaff()) {
                                     user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage("&4&lStaff &8⏐ &r" + punishment.getExecutorDisplay() +  " &ablacklisted " +
+                                    user.sendMessage(punishment.getExecutorDisplay() +  " &eblacklisted " +
                                             punishment.getPunishedDisplay());
-                                    user.sendMessage("&cReason: &7" + punishment.getReason());
-                                    user.sendMessage("&cDuration: &7Permanent");
+                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
+                                    user.sendMessage("&7Duration: &fPermanent");
                                     user.sendMessage("&8&m------------------------------------------");
                                 }
                             }
                         }
                         break;
+                    }
+                    case MUTE: {
+                        User u = Core.i().getUser(punishment.getPunished());
+                        if (punishment.isRemoval()) {
+                            if (u != null) {
+                                u.sendMessage(ChatUtil.color("&aYou have been unmuted."));
+                            }
 
-                        //also add a clear history and view history
+                            for (User user : Core.i().getUsers()) {
+                                if (user.isStaff()) {
+                                    user.sendMessage("&8&m------------------------------------------");
+                                    user.sendMessage(punishment.getExecutorDisplay() + " &7unmuted " +
+                                            punishment.getPunishedDisplay());
+                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
+                                    user.sendMessage("&8&m------------------------------------------");
+                                }
+                            }
+                        } else {
+                            boolean perm = punishment.getLength() == -1;
+                            if (u != null) {
+                                u.sendMessage(" ");
+                                u.sendMessage("&cYou have been muted! &8(&7Reason: &f" + punishment.getReason() + " &8| &7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())) + "&8)");
+                                u.sendMessage(" ");
+                            }
+
+                            for (User user : Core.i().getUsers()) {
+                                if (user.isStaff()) {
+                                    user.sendMessage("&8&m------------------------------------------");
+                                    user.sendMessage(punishment.getExecutorDisplay() + (perm ? " &7muted " : " &7temporarily muted ") +
+                                            punishment.getPunishedDisplay());
+                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
+                                    user.sendMessage("&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())));
+                                    user.sendMessage("&8&m------------------------------------------");
+                                }
+                            }
+                        }
+                        break;
                     }
                 }
             }

@@ -48,7 +48,7 @@ public class TempBanCommand extends SpigotCommand {
             try {
                 duration = MathUtil.parseDate(args[1]);
             } catch (NumberFormatException e) {
-                p.sendMessage(ChatUtil.color("&cPlease provide a valid date! example: 7d"));
+                p.sendMessage(ChatUtil.color("&cPlease provide a valid date! example: 30d"));
                 return;
             }
 

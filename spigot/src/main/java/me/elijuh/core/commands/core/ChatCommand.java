@@ -12,6 +12,7 @@ import java.util.List;
 
 public class ChatCommand extends SpigotCommand {
     private final List<String> SUBCOMMANDS = ImmutableList.of(
+            "clear",
             "slow"
     );
 
@@ -37,21 +38,33 @@ public class ChatCommand extends SpigotCommand {
     @Override
     public void onExecute(Player p, String[] args) {
         if (args.length > 0) {
-            if (args[0].equalsIgnoreCase("slow")) {
-                if (args.length > 1) {
-                    try {
-                        int cooldown = Integer.parseInt(args[1]);
-                        p.sendMessage(ChatUtil.color("&aChat cooldown has been set to " + cooldown + " seconds."));
-                        Core.i().getChatManager().setCooldown(cooldown);
-                    } catch (NumberFormatException e) {
-                        p.sendMessage(ChatUtil.color("&cPlease provide a valid integer!"));
+            switch (args[0].toLowerCase()) {
+                case "slow": {
+                    if (args.length == 2) {
+                        try {
+                            int cooldown = Integer.parseInt(args[1]);
+                            p.sendMessage(ChatUtil.color("&aChat cooldown has been set to " + cooldown + " seconds."));
+                            Core.i().getChatManager().setCooldown(cooldown);
+                        } catch (NumberFormatException e) {
+                            p.sendMessage(ChatUtil.color("&cPlease provide a valid integer!"));
+                        }
+                    } else {
+                        p.sendMessage(ChatUtil.color("&cUsage: /chat slow <cooldown>"));
                     }
-                } else {
-                    p.sendMessage(ChatUtil.color("&cUsage: /chat slow <cooldown>"));
+                    break;
+                }
+                case "clear": {
+                    if (args.length == 1) {
+                        p.performCommand("clearchat");
+                    } else {
+                        p.sendMessage(ChatUtil.color("&cUsage: /chat clear"));
+                    }
+                    break;
                 }
             }
         } else {
             p.sendMessage(ChatUtil.color("&7&m                      &8[ &4&lChat Help &8]&7&m                             "));
+            p.sendMessage(ChatUtil.color("&7- &f/chat clear"));
             p.sendMessage(ChatUtil.color("&7- &f/chat slow <cooldown>"));
             p.sendMessage(ChatUtil.color(" "));
             p.sendMessage(ChatUtil.color("&8(&7Current Cooldown: &f" + Core.i().getChatManager().getCooldown() + "s&8)"));

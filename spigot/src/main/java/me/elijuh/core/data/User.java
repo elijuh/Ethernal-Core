@@ -5,6 +5,10 @@ import me.elijuh.core.Core;
 import me.elijuh.core.manager.StaffManager;
 import me.elijuh.core.utils.ChatUtil;
 import me.elijuh.core.utils.StaffUtil;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -29,8 +33,6 @@ public class User {
     }
 
     public void unload() {
-        Core.i().getDatabaseManager().updateData(this);
-
         if (StaffUtil.isVanished(player)) {
             StaffManager.disableVanish(player);
         }
@@ -41,9 +43,18 @@ public class User {
 
         if (StaffUtil.isFrozen(player)) {
             StaffManager.unfreeze(player);
-            Core.log(" ", "core.freeze");
-            Core.log("&4&l" + player.getName() + " has logged out whilst frozen!", "core.freeze");
-            Core.log(" ", "core.freeze");
+            BaseComponent base = new TextComponent(ChatUtil.color("&4" + player.getName() + " has logged out whilst frozen! "));
+            BaseComponent ban = new TextComponent(ChatUtil.color("&a[Click to Ban]"));
+            ban.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(
+                    ChatUtil.color("&aClick here to Ban"))));
+            ban.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ban " + player.getName() + " Logged out whilst frozen"));
+            for (User user : Core.i().getUsers()) {
+                if (user.isStaff()) {
+                    user.sendMessage(" ");
+                    user.getPlayer().spigot().sendMessage(base, ban);
+                    user.sendMessage(" ");
+                }
+            }
         }
 
         if (player.getWalkSpeed() != 0.2F) {
@@ -58,5 +69,18 @@ public class User {
 
     public void kick(String... lines) {
         Bukkit.getScheduler().runTask(Core.i(), ()-> player.kickPlayer(ChatUtil.toLines(lines)));
+    }
+
+    public void clearchat() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 500; i++) {
+            builder.append(" ");
+
+            if (i % 50 == 0) {
+                builder.delete(0, builder.length());
+            }
+
+            player.sendMessage(builder.toString());
+        }
     }
 }

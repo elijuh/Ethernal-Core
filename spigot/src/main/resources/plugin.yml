@@ -3,16 +3,6 @@ author: elijuh
 version: ${project.version}
 depend: [Vault, TAB, PlaceholderAPI]
 main: me.elijuh.core.Core
-commands:
-  economy:
-    aliases: [eco]
-    description: "Main command for economy management."
-  baltop:
-    aliases: [balancetop, moneytop]
-    description: "Balance leaderboard."
-  pay:
-    description: "Send money to another player."
-
 permissions:
   core.*:
     children:
@@ -35,7 +25,6 @@ permissions:
       - core.heal.others
       - core.fly
       - core.fly.others
-      - core.freeze
       - core.staffmode.interact
       - core.economy
   core.staff:
@@ -81,4 +70,6 @@ permissions:
   core.economy:
     default: op
   core.invsee:
+    default: op
+  core.invsee.edit:
     default: op

@@ -13,10 +13,7 @@ import me.elijuh.core.commands.economy.BaltopCommand;
 import me.elijuh.core.commands.economy.EconomyCommand;
 import me.elijuh.core.commands.economy.PayCommand;
 import me.elijuh.core.commands.punishments.*;
-import me.elijuh.core.commands.staff.FreezeCommand;
-import me.elijuh.core.commands.staff.InvseeCommand;
-import me.elijuh.core.commands.staff.StaffModeCommand;
-import me.elijuh.core.commands.staff.VanishCommand;
+import me.elijuh.core.commands.staff.*;
 import me.elijuh.core.data.Pair;
 import me.elijuh.core.data.User;
 import me.elijuh.core.expansions.CoreExpansion;
@@ -33,6 +30,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -48,6 +47,7 @@ public class Core extends JavaPlugin {
     private DatabaseManager databaseManager;
     private ChatManager chatManager;
     private CoreEconomy economy;
+    private Statement keepAlive;
     public static Location spawn;
     public static WarpManager warpManager;
     public static String ID, prefix, logPrefix;
@@ -80,6 +80,12 @@ public class Core extends JavaPlugin {
         redisManager = new RedisManager();
         databaseManager = new DatabaseManager();
         chatManager = new ChatManager();
+        try {
+            keepAlive = databaseManager.getConnection().createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
         spawn = getSpawn();
         warpManager = new WarpManager();
         ID = i().getConfig().getString("server-id");
@@ -94,8 +100,6 @@ public class Core extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-
-        new RedisListener();
 
         new Gma();
         new Gmc();
@@ -112,7 +116,9 @@ public class Core extends JavaPlugin {
         new HistoryCommand();
         new IPUnBanCommand();
         new TempBanCommand();
+        new TempMuteCommand();
 
+        new GcCommand();
         new FixCommand();
         new FlyCommand();
         new HubCommand();
@@ -137,13 +143,14 @@ public class Core extends JavaPlugin {
         new SetwarpCommand();
         new GamemodeCommand();
         new TeleportCommand();
+        new ClearChatCommand();
         new StaffModeCommand();
 
         if (getConfig().getBoolean("economy.enabled")) {
             new BalanceCommand();
-            new EconomyCommand(this);
-            new BaltopCommand(this);
-            new PayCommand(this);
+            new EconomyCommand();
+            new BaltopCommand();
+            new PayCommand();
 
             Bukkit.getScheduler().runTaskTimerAsynchronously(this, ()-> {
                 baltop.clear();
@@ -151,10 +158,21 @@ public class Core extends JavaPlugin {
             }, 0L, 6000L);
         }
 
-        new PlayerListener(this);
-        new StaffListener(this);
-        new ExtraListener(this);
-        new HubHandler(this);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, ()-> {
+            System.gc();
+            try {
+                keepAlive.execute("SELECT UUID FROM userdata LIMIT 1");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }, 6000L, 6000L);
+
+        new HubHandler();
+        new ExtraListener();
+        new RedisListener();
+        new StaffListener();
+        new PlayerListener();
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             users.add(new User(p));
@@ -201,6 +219,12 @@ public class Core extends JavaPlugin {
             databaseManager = null;
         }
         chatManager = null;
+        try {
+            keepAlive.close();
+        } catch (NullPointerException | SQLException ignored) {
+
+        }
+        keepAlive = null;
         economy = null;
         spawn = null;
         warpManager = null;
@@ -253,23 +277,10 @@ public class Core extends JavaPlugin {
     }
 
     public User getUser(Player p) {
+        if (p == null) {
+            return null;
+        }
         return getUser(p.getName());
-    }
-
-    public static void log(String log) {
-        for (Player staff : Bukkit.getOnlinePlayers()) {
-            if (staff.hasPermission("core.logs")) {
-                staff.sendMessage(logPrefix + ChatUtil.color(log));
-            }
-        }
-    }
-
-    public static void log(String log, String permission) {
-        for (Player staff : Bukkit.getOnlinePlayers()) {
-            if (staff.hasPermission(permission)) {
-                staff.sendMessage(logPrefix + ChatUtil.color(log));
-            }
-        }
     }
 
     public static Core i() {

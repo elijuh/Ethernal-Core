@@ -39,8 +39,6 @@ public class DatabaseManager {
         hikariConfig.setPassword(password);
         hikariConfig.setPoolName("Core");
         hikariConfig.setMaximumPoolSize(6);
-        hikariConfig.setMinimumIdle(10);
-        hikariConfig.setMaxLifetime(180000);
         hikariConfig.setAutoCommit(true);
 
         hikariDataSource = new HikariDataSource(hikariConfig);
@@ -123,7 +121,9 @@ public class DatabaseManager {
             statement.setString(2, type.toString());
             ResultSet result = statement.executeQuery();
             while (result.next()) {
-                if (!result.getString("expiration").equals("-1") || result.getLong("expiration") - System.currentTimeMillis() < 0) {
+                if (result.getString("expiration").equals("-1")) {
+                    return true;
+                } else if (result.getLong("expiration") - System.currentTimeMillis() > 0) {
                     return true;
                 }
             }
@@ -223,8 +223,8 @@ public class DatabaseManager {
                 statement = connection.prepareStatement("UPDATE userdata SET `name` = ?, `IP` = ?, `display` = ? WHERE UUID = ?");
                 statement.setString(1, name.toLowerCase());
                 statement.setString(2, ip);
-                statement.setString(3, uuid);
-                statement.setString(4, display.replace("§", "&"));
+                statement.setString(3, display.replace("§", "&"));
+                statement.setString(4, uuid);
                 statement.executeUpdate();
             } else {
                 statement = connection.prepareStatement("INSERT INTO userdata(`UUID`, `IP`, `name`, `display`) VALUES(?, ?, ?, ?)");
@@ -244,13 +244,6 @@ public class DatabaseManager {
         return !getUUID(name.toLowerCase()).equals("Unknown");
     }
 
-    public void resetHistory(String name) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("DELETE FROM punishments WHERE UUID = ?");
-        statement.setString(1, getUUID(name));
-        statement.executeUpdate();
-        statement.close();
-    }
-
     public List<BanInfo> getHistory(String uuid) {
         List<BanInfo> bans = Lists.newArrayList();
         try {
@@ -258,10 +251,12 @@ public class DatabaseManager {
             statement.setString(1, uuid);
             ResultSet result = statement.executeQuery();
             while (result.next()) {
-                bans.add(new BanInfo(
-                        result.getString("executor"), result.getString("reason"), result.getLong("expiration"),
-                        !result.getString("removed").equals("0"), result.getString("type").equals("IPBAN")
-                ));
+                if (!result.getString("type").equals("MUTE")) {
+                    bans.add(new BanInfo(
+                            result.getString("executor"), result.getString("reason"), result.getLong("expiration"),
+                            !result.getString("removed").equals("0"), result.getString("type").equals("IPBAN")
+                    ));
+                }
             }
             statement.close();
         } catch (SQLException e) {
@@ -297,7 +292,7 @@ public class DatabaseManager {
         return null;
     }
 
-    public List<String> getAlts(String ip) {
+    public List<String> getAccounts(String ip) {
         List<String> alts = Lists.newArrayList();
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT display FROM userdata WHERE IP = ?");

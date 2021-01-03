@@ -1,7 +1,7 @@
 package me.elijuh.core.manager;
 
 import me.elijuh.core.Core;
-import me.elijuh.core.utils.NameTagAPI;
+import me.elijuh.core.utils.NametagUtil;
 import me.elijuh.core.utils.ItemBuilder;
 import me.elijuh.core.utils.StaffUtil;
 import org.bukkit.Bukkit;
@@ -26,6 +26,8 @@ public class StaffManager {
             .addLore("&7Right-Click a player to inspect their inventory.").build();
     public static final ItemStack FREEZE = new ItemBuilder(Material.ICE).setName("&4Freeze Player")
             .addLore("&7Right-Click a player to freeze them.").build();
+    public static final ItemStack CARPET = new ItemBuilder(Material.CARPET).setName("&4Better Looking")
+            .addLore("&7Hold this so you don't see your hand.").setDura(1).build();
     public static final ItemStack STAFF = new ItemBuilder(Material.NETHER_STAR).setName("&4Online Staff")
             .addLore("&7Right-Click for a GUI of online staff.").build();
     public static final ItemStack VANISH = new ItemBuilder(Material.INK_SACK).setName("&4Become Invisible")
@@ -37,6 +39,7 @@ public class StaffManager {
         return item.isSimilar(COMPASS)
                 || item.isSimilar(INSPECT)
                 || item.isSimilar(FREEZE)
+                || item.isSimilar(CARPET)
                 || item.isSimilar(STAFF)
                 || item.isSimilar(VANISH)
                 || item.isSimilar(UN_VANISH);
@@ -61,7 +64,8 @@ public class StaffManager {
         inv.setArmorContents(null);
         inv.setItem(0, COMPASS);
         inv.setItem(1, INSPECT);
-        inv.setItem(2, FREEZE);
+        inv.setItem(2, player.hasPermission("core.freeze") ? FREEZE : CARPET);
+        inv.setItem(3, player.hasPermission("core.freeze") ? CARPET : null);
         inv.setItem(7, STAFF);
         inv.setItem(8, StaffUtil.isVanished(player) ? UN_VANISH : VANISH);
         player.setGameMode(GameMode.CREATIVE);
@@ -93,7 +97,7 @@ public class StaffManager {
     public static void enableVanish(Player player) {
         if (Core.ID.toLowerCase().contains("hub")) return;
         player.setMetadata("vanished", new FixedMetadataValue(Core.i(), true));
-        NameTagAPI.setPrefix(player, "&7[V] ");
+        NametagUtil.setPrefix(player, "&7[V] ");
         for (Player all : Bukkit.getOnlinePlayers()) {
             if (!all.hasPermission("core.staff")) {
                 all.hidePlayer(player);
@@ -113,7 +117,7 @@ public class StaffManager {
     public static void enableVanish(Player player, long delayNametag) {
         if (Core.ID.toLowerCase().contains("hub")) return;
         player.setMetadata("vanished", new FixedMetadataValue(Core.i(), true));
-        Bukkit.getScheduler().runTaskLater(Core.i(), ()-> NameTagAPI.setPrefix(player, "&7[V] "), delayNametag);
+        Bukkit.getScheduler().runTaskLater(Core.i(), ()-> NametagUtil.setPrefix(player, "&7[V] "), delayNametag);
         for (Player all : Bukkit.getOnlinePlayers()) {
             if (!all.hasPermission("core.staff")) {
                 all.hidePlayer(player);
@@ -133,7 +137,7 @@ public class StaffManager {
     public static void disableVanish(Player player) {
         if (Core.ID.toLowerCase().contains("hub")) return;
         player.removeMetadata("vanished", Core.i());
-        NameTagAPI.removePrefix(player);
+        NametagUtil.removePrefix(player);
         for (Player all : Bukkit.getOnlinePlayers()) {
             if (!all.canSee(player)) {
                 all.showPlayer(player);

@@ -3,6 +3,7 @@ package me.elijuh.core.hub;
 import me.elijuh.core.Core;
 import me.elijuh.core.gui.impl.SelectorGUI;
 import me.elijuh.core.utils.ItemBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -18,6 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,9 +32,9 @@ public class HubHandler implements Listener {
     public static final ItemStack SELECTOR = new ItemBuilder(Material.NETHER_STAR).setName("&c&lSelector").build();
     public static final ItemStack PEARL = new ItemBuilder(Material.ENDER_PEARL).setName("&c&lPearl").setAmount(1).build();
 
-    public HubHandler(Core plugin) {
+    public HubHandler() {
         if (Core.ID.toLowerCase().contains("hub")) {
-            plugin.getServer().getPluginManager().registerEvents(this, plugin);
+            Bukkit.getServer().getPluginManager().registerEvents(this, Core.i());
         }
     }
 
@@ -109,6 +111,7 @@ public class HubHandler implements Listener {
         for (PotionEffect effect : player.getActivePotionEffects()) {
             player.removePotionEffect(effect.getType());
         }
+        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false));
         scoreboardInstances.computeIfAbsent(player.getName(), name -> new HubScoreboard(player)).enable();
     }
 }

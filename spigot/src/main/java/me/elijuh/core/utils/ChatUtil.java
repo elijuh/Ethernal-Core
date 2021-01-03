@@ -47,7 +47,8 @@ public class ChatUtil {
 
         String format = pluralize(days, "Day", ", ")
                 + pluralize(hours, "Hour", ", ")
-                + pluralize(minutes, "Minute", ", ");
+                + pluralize(minutes, "Minute", ", ")
+                + pluralize(seconds, "Second", ", ");
         return format.isEmpty() ? "" : format.substring(0, format.length() - 2);
     }
 

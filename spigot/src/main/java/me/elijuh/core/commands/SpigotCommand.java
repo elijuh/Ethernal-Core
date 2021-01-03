@@ -40,7 +40,7 @@ public abstract class SpigotCommand extends Command {
         try{
             CommandMap map = (CommandMap) ReflectionUtil.getField(Bukkit.getServer().getClass(), "commandMap").get(Bukkit.getServer());
             ReflectionUtil.unregisterCommands(map, getName(), getAliases());
-            map.register(getName(), "intel", this);
+            map.register(getName(), "ethernal", this);
         } catch (Exception e) {
             e.printStackTrace();
         }

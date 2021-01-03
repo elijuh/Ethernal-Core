@@ -11,7 +11,6 @@ public class MathUtil {
     }
 
     public long parseDate(String input) throws NumberFormatException {
-        long length = 0;
         long amount = Integer.parseInt(input.substring(0, input.length() - 1));
         switch (input.toLowerCase().toCharArray()[input.length() - 1]) {
             case 'y': {
@@ -29,8 +28,12 @@ public class MathUtil {
             case 'h': {
                 return amount * 3600000L;
             }
+            case 's': {
+                return amount * 1000L;
+            }
+            default: {
+                throw new NumberFormatException("Did not follow format.");
+            }
         }
-
-        return length;
     }
 }

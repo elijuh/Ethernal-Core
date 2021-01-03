@@ -5,7 +5,7 @@ import me.neznamy.tab.api.TABAPI;
 import me.neznamy.tab.api.TabPlayer;
 import org.bukkit.entity.Player;
 
-public class NameTagAPI {
+public class NametagUtil {
 
     public static void setPrefix(Player player, String prefix) {
         TabPlayer tab = TABAPI.getPlayer(player.getUniqueId());

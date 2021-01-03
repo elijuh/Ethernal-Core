@@ -5,6 +5,7 @@ import me.elijuh.core.gui.impl.StaffGUI;
 import me.elijuh.core.manager.StaffManager;
 import me.elijuh.core.utils.ChatUtil;
 import me.elijuh.core.utils.StaffUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -21,8 +22,8 @@ import org.bukkit.inventory.ItemStack;
 public class StaffListener implements Listener {
     public static StaffGUI staffGui = new StaffGUI();
 
-    public StaffListener(Core plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    public StaffListener() {
+        Bukkit.getServer().getPluginManager().registerEvents(this, Core.i());
     }
 
     @EventHandler
@@ -95,9 +96,7 @@ public class StaffListener implements Listener {
             e.getView().close();
         }
 
-        if (e.getView().getTitle().equals(staffGui.getTitle())) {
-            staffGui.handle(e);
-        }
+        staffGui.handle(e);
     }
 
     @EventHandler

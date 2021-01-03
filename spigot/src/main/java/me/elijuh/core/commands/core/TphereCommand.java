@@ -1,7 +1,6 @@
 package me.elijuh.core.commands.core;
 
 import com.google.common.collect.ImmutableList;
-import me.elijuh.core.Core;
 import me.elijuh.core.commands.SpigotCommand;
 import me.elijuh.core.utils.ChatUtil;
 import org.bukkit.Bukkit;
@@ -38,9 +37,7 @@ public class TphereCommand extends SpigotCommand {
         }
 
         target1.teleport(target2);
-        Core.log("&7[&e&o" + p.getName() + "&7: teleported " +
-                (target1.equals(p) ? "" : "&e&o" + target1.getName() + " ") + "&7to &e&o" + target2.getName() + "&7]");
-        p.sendMessage(ChatUtil.color("&6» &7You have teleported " +
+        p.sendMessage(ChatUtil.color("&8» &7You have teleported " +
                 (target1.equals(p) ? "" : "&c" + target1.getName() + " ") + "&7to &c" + target2.getName() + "&7."));
     }
 }

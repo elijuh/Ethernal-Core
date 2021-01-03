@@ -38,7 +38,6 @@ public class ClearCommand extends SpigotCommand {
         }
 
         if (!target.equals(p)) {
-            Core.log("&7[&e&o" + p.getName() + "&7: cleared inventory of &e&o" + target.getName() + "&7]");
             p.sendMessage(ChatUtil.color("&8» &7You have cleared the inventory of &c" + target.getName() + "&7."));
         } else {
             target.sendMessage(ChatUtil.color("&8» &7You have cleared your inventory."));

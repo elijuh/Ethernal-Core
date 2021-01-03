@@ -1,30 +1,31 @@
 package me.elijuh.core.commands.economy;
 
+import com.google.common.collect.Lists;
 import me.elijuh.core.Core;
+import me.elijuh.core.commands.SpigotCommand;
 import me.elijuh.core.utils.ChatUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class EconomyCommand implements CommandExecutor {
+import java.util.List;
+
+public class EconomyCommand extends SpigotCommand {
     private final Core plugin;
 
-    public EconomyCommand(Core plugin) {
-        this.plugin = plugin;
-        plugin.getCommand("economy").setExecutor(this);
+    public EconomyCommand() {
+        super("economy", Lists.newArrayList("eco"), "core.economy");
+        plugin = Core.i();
     }
+
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) return true;
-        Player p = (Player) sender;
+    public List<String> onTabComplete(Player p, String[] args) {
+        return null;
+    }
+
+    @Override
+    public void onExecute(Player p, String[] args) {
         OfflinePlayer target;
-        if (!p.hasPermission("core.economy")) {
-            p.sendMessage(ChatUtil.color("&cNo permission."));
-            return true;
-        }
 
         if (args.length > 2) {
             target = Bukkit.getOfflinePlayer(args[1]);
@@ -32,14 +33,14 @@ public class EconomyCommand implements CommandExecutor {
 
             if (!plugin.getEconomy().hasAccount(target)) {
                 p.sendMessage(ChatUtil.color("&cThat player does not have a profile!"));
-                return true;
+                return;
             }
 
             try {
                 amount = Double.parseDouble(args[2]);
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 p.sendMessage(ChatUtil.color("&cPlease provide a valid amount!"));
-                return true;
+                return;
             }
 
             switch(args[0].toLowerCase()) {
@@ -64,12 +65,11 @@ public class EconomyCommand implements CommandExecutor {
                     break;
                 }
                 default: {
-                    p.sendMessage(ChatUtil.color("&cUsage: /" + label + " <give | take | set> <player> <amount>"));
+                    p.sendMessage(ChatUtil.color("&cUsage: /eco <give | take | set> <player> <amount>"));
                 }
             }
         } else {
-            p.sendMessage(ChatUtil.color("&cUsage: /" + label + " <give | take | set> <player> <amount>"));
+            p.sendMessage(ChatUtil.color("&cUsage: /eco <give | take | set> <player> <amount>"));
         }
-        return true;
     }
 }

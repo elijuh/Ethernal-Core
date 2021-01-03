@@ -53,17 +53,19 @@ public class StaffGUI extends GUI {
 
     @Override
     public void handle(InventoryClickEvent e) {
-        ItemStack item = e.getCurrentItem();
-        if (item == null) return;
-        if (item.getType().equals(Material.SKULL_ITEM)) {
-            Player target = Bukkit.getPlayerExact(((SkullMeta) item.getItemMeta()).getOwner());
-            if (target == null) {
-                e.getWhoClicked().sendMessage(ChatUtil.color("&cThat player is no longer online."));
-            } else {
-                ((Player)e.getWhoClicked()).performCommand("tp " + target.getName());
+        if (e.getView().getTitle().equals(getTitle())) {
+            ItemStack item = e.getCurrentItem();
+            if (item == null) return;
+            if (item.getType().equals(Material.SKULL_ITEM)) {
+                Player target = Bukkit.getPlayerExact(((SkullMeta) item.getItemMeta()).getOwner());
+                if (target == null) {
+                    e.getWhoClicked().sendMessage(ChatUtil.color("&cThat player is no longer online."));
+                } else {
+                    ((Player)e.getWhoClicked()).performCommand("tp " + target.getName());
+                }
             }
+            e.setCancelled(true);
+            e.getView().close();
         }
-        e.setCancelled(true);
-        e.getView().close();
     }
 }

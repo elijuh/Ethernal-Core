@@ -22,10 +22,10 @@ public class HubScoreboard {
     private final RefreshTask task;
     private static final List<String> LINES = ImmutableList.of(
             " ",
-            "&4Rank:",
+            "&4Rank",
             "&8» %luckperms_primary_group_name%",
             " ",
-            "&4Players:",
+            "&4Players",
             "&8» &r%bungee_total%",
             " ",
             "&7" + Core.i().getConfig().getString("ip"),

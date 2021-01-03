@@ -28,7 +28,7 @@ public class SelectorGUI extends GUI {
                 .setName("&8&l« &4&lKitPvP &8&l»")
                 .addLore(" ")
                 .addLore("&c&lVersion &8» &f1.8.9")
-                .addLore("&c&lStatus &8» &fMaintenance")
+                .addLore("&c&lStatus &8» &fOpen Beta")
                 .addLore(" ")
                 .addLore("&c&lPlayers &8» &f" + PlaceholderAPI.setPlaceholders(player, "%bungee_kitpvp%"))
                 .addFlag(ItemFlag.HIDE_ATTRIBUTES)

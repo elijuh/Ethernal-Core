@@ -3,8 +3,10 @@ package me.elijuh.core.commands.punishments;
 import com.google.common.collect.Lists;
 import me.elijuh.core.Core;
 import me.elijuh.core.commands.SpigotCommand;
+import me.elijuh.core.data.Punishment;
 import me.elijuh.core.manager.DatabaseManager;
 import me.elijuh.core.utils.ChatUtil;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -27,10 +29,11 @@ public class AltsCommand extends SpigotCommand {
     public void onExecute(Player p, String[] args) {
         if (args.length == 1) {
             if (databaseManager.hasData(args[0])) {
-                List<String> alts = databaseManager.getAlts(databaseManager.getIP(databaseManager.getUUID(args[0])));
-                p.sendMessage(ChatUtil.color("&4&lStaff &8⏐ &7Showing accounts on &f" + args[0] + "'s &7IP:"));
+                List<String> alts = databaseManager.getAccounts(databaseManager.getIP(databaseManager.getUUID(args[0])));
+                p.sendMessage(ChatUtil.color("&4&lStaff &8⏐ &7Showing accounts on &f" + ChatColor.stripColor(ChatUtil.color(databaseManager.getDisplay(args[0]))) + "'s &7IP:"));
                 for (String alt : alts) {
-                    p.sendMessage(ChatUtil.color("&7- &f" + alt));
+                    p.sendMessage(ChatUtil.color("&7- &f" + ChatColor.stripColor(alt) +
+                            (databaseManager.isPunished(ChatColor.stripColor(alt), Punishment.BAN) ? " &7[&4Banned&7]" : "")));
                 }
             } else {
                 p.sendMessage(ChatUtil.color("&cThat player has never joined!"));
@@ -44,8 +47,8 @@ public class AltsCommand extends SpigotCommand {
     public void onConsole(CommandSender sender, String[] args) {
         if (args.length == 1) {
             if (databaseManager.hasData(args[0])) {
-                List<String> alts = databaseManager.getAlts(databaseManager.getIP(databaseManager.getUUID(args[0])));
-                sender.sendMessage(ChatUtil.color("&4&lStaff &8⏐ &7Listing accounts on &f" + args[0] + "'s &7IP:"));
+                List<String> alts = databaseManager.getAccounts(databaseManager.getIP(databaseManager.getUUID(args[0])));
+                sender.sendMessage(ChatUtil.color("&4&lStaff &8⏐ &7Listing accounts on &f" + ChatColor.stripColor(ChatUtil.color(databaseManager.getDisplay(args[0]))) + "'s &7IP:"));
                 for (String alt : alts) {
                     sender.sendMessage(ChatUtil.color("&7- &f" + alt));
                 }

@@ -1,7 +1,6 @@
 package me.elijuh.core.commands.staff;
 
 import com.google.common.collect.ImmutableList;
-import me.elijuh.core.Core;
 import me.elijuh.core.commands.SpigotCommand;
 import me.elijuh.core.manager.StaffManager;
 import me.elijuh.core.utils.ChatUtil;
@@ -37,8 +36,6 @@ public class FreezeCommand extends SpigotCommand {
                     StaffManager.freeze(target);
                 }
 
-                Core.log("&7[&e&o" + p.getName() + "&7: " +
-                        (StaffUtil.isFrozen(target) ? "froze" : "unfroze") + " &e&o" + target.getName() + "&7]");
                 p.sendMessage(ChatUtil.color("&4&lStaff &8⏐ &7You have " + (StaffUtil.isFrozen(target) ? "froze" : "unfroze") + " &f" + target.getName() + "&7."));
             }
         } else {
