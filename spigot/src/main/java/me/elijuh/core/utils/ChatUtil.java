@@ -3,6 +3,9 @@ package me.elijuh.core.utils;
 import lombok.experimental.UtilityClass;
 import org.bukkit.ChatColor;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 @UtilityClass
 public class ChatUtil {
     public String color(String s) {
@@ -65,5 +68,32 @@ public class ChatUtil {
             }
         }
         return format.toString();
+    }
+
+    public String formatMoney(double d) {
+        NumberFormat format = NumberFormat.getInstance(Locale.ENGLISH);
+        format.setMaximumFractionDigits(2);
+        format.setMinimumFractionDigits(0);
+
+        if (d < 1000L) {
+            return format.format(d);
+        }
+        if (d < 1000000L) {
+            return format.format(d / 1000L) + "k";
+        }
+        if (d < 1000000000L) {
+            return format.format(d / 1000000L) + "M";
+        }
+        if (d < 1000000000000L) {
+            return format.format(d / 1000000000L) + "B";
+        }
+        if (d < 1000000000000000L) {
+            return format.format(d / 1000000000000L) + "T";
+        }
+        if (d < 1000000000000000000L) {
+            return format.format(d / 1000000000000000L) + "Q";
+        }
+
+        return String.valueOf((long) d);
     }
 }

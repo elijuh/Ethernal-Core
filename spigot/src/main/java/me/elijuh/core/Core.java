@@ -143,6 +143,7 @@ public class Core extends JavaPlugin {
         new SetwarpCommand();
         new GamemodeCommand();
         new TeleportCommand();
+        new BroadcastCommand();
         new ClearChatCommand();
         new StaffModeCommand();
 

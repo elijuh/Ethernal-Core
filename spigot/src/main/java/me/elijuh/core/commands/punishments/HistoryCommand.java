@@ -37,7 +37,7 @@ public class HistoryCommand extends SpigotCommand {
                 } else {
                     for (BanInfo info : history) {
                         p.sendMessage(ChatUtil.color("&6" + name + " &ewas " + (info.isIp() ? "blacklisted" : "banned") + " by &6" +
-                                info.getExecutor() + " &efor &7\"" + info.getReason() + "&7\" " + (info.isRemoved() || System.currentTimeMillis() - info.getExpiration() < 0 ?
+                                info.getExecutor() + " &efor &7\"" + info.getReason() + "&7\" " + (info.isRemoved() || info.getExpiration() - System.currentTimeMillis() <= 0 ?
                                 "&a[Removed]" : "&c[Active]")));
                         p.sendMessage(ChatUtil.color("&eReason: &f" + info.getReason()));
                         p.sendMessage(" ");

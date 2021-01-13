@@ -25,7 +25,7 @@ public class BaltopCommand extends SpigotCommand {
         for (int i = Core.baltop.size() - 1; i > Math.max(Core.baltop.size() - 11, -1); i--) {
             int position = Core.baltop.size() - i;
             Pair<String, Double> pair = Core.baltop.get(i);
-            p.sendMessage(ChatUtil.color("&c&l#" + position + " &7" + pair.getX() + ": &a$" + pair.getY()));
+            p.sendMessage(ChatUtil.color("&c&l#" + position + " &7" + pair.getX() + ": &a$" + ChatUtil.formatMoney(pair.getY())));
         }
         p.sendMessage(" ");
     }

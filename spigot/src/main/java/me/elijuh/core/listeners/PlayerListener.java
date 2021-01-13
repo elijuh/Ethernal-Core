@@ -32,7 +32,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void on(AsyncPlayerPreLoginEvent e) {
-        String display = databaseManager.hasData(e.getName()) ? databaseManager.getDisplay(e.getName()) : "&7" + e.getName();
+        String display = databaseManager.getDisplay(e.getName());
         databaseManager.updateData(e.getName(), e.getAddress().getHostAddress(), e.getUniqueId().toString(), display);
 
         if (databaseManager.isPunished(e.getUniqueId(), Punishment.BAN) || databaseManager.isIPBanned(e.getAddress().getHostAddress())) {

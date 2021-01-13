@@ -121,7 +121,7 @@ public class DatabaseManager {
             statement.setString(2, type.toString());
             ResultSet result = statement.executeQuery();
             while (result.next()) {
-                if (result.getString("expiration").equals("-1")) {
+                if (result.getLong("expiration") == -1) {
                     return true;
                 } else if (result.getLong("expiration") - System.currentTimeMillis() > 0) {
                     return true;
@@ -195,17 +195,19 @@ public class DatabaseManager {
     }
 
     public String getDisplay(String name) {
-        try {
-            PreparedStatement statement = connection.prepareStatement("SELECT display FROM userdata WHERE UUID = ?");
-            statement.setString(1, getUUID(name));
-            ResultSet result = statement.executeQuery();
-            if (result.next()) {
-                return result.getString("display");
+        if (hasData(name)) {
+            try {
+                PreparedStatement statement = connection.prepareStatement("SELECT display FROM userdata WHERE UUID = ?");
+                statement.setString(1, getUUID(name));
+                ResultSet result = statement.executeQuery();
+                if (result.next()) {
+                    return result.getString("display");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-        return name;
+        return "&7" + name;
     }
 
     public void updateData(User user) {
@@ -281,8 +283,13 @@ public class DatabaseManager {
                 PreparedStatement statement = connection.prepareStatement("SELECT executor, reason, expiration FROM punishments WHERE UUID = ? AND removed = \"0\"");
                 statement.setString(1, getUUID(name));
                 ResultSet result = statement.executeQuery();
-                if (result.next()) {
-                    return new BanInfo(result.getString("executor"), result.getString("reason"), result.getLong("expiration"), false, false);
+                while (result.next()) {
+                    BanInfo info = new BanInfo(result.getString("executor"), result.getString("reason"), result.getLong("expiration"), false, false);
+                    if (info.getExpiration() == -1) {
+                        return info;
+                    } else if (info.getExpiration() - System.currentTimeMillis() > 0) {
+                        return info;
+                    }
                 }
                 statement.close();
             }
