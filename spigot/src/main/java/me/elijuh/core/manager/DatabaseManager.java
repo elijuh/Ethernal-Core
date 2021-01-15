@@ -221,7 +221,7 @@ public class DatabaseManager {
     public void updateData(String name, String ip, String uuid, String display) {
         try {
             PreparedStatement statement;
-            if (hasData(name)) {
+            if (hasData(UUID.fromString(uuid))) {
                 statement = connection.prepareStatement("UPDATE userdata SET `name` = ?, `IP` = ?, `display` = ? WHERE UUID = ?");
                 statement.setString(1, name.toLowerCase());
                 statement.setString(2, ip);
@@ -243,7 +243,19 @@ public class DatabaseManager {
     }
 
     public boolean hasData(String name) {
-        return !getUUID(name.toLowerCase()).equals("Unknown");
+        return !getUUID(name).equals("Unknown");
+    }
+
+    public boolean hasData(UUID uuid) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT UUID FROM userdata WHERE UUID = ? LIMIT 1");
+            statement.setString(1, uuid.toString());
+            ResultSet result = statement.executeQuery();
+            return result.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public List<BanInfo> getHistory(String uuid) {
