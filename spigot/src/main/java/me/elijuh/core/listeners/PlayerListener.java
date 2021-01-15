@@ -35,19 +35,28 @@ public class PlayerListener implements Listener {
         String display = databaseManager.getDisplay(e.getName());
         databaseManager.updateData(e.getName(), e.getAddress().getHostAddress(), e.getUniqueId().toString(), display);
 
-        if (databaseManager.isPunished(e.getUniqueId(), Punishment.BAN) || databaseManager.isIPBanned(e.getAddress().getHostAddress())) {
-            BanInfo info = databaseManager.getBanInfo(e.getName());
-            if (info != null) {
-                boolean perm = info.getExpiration() == -1;
-                e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_BANNED);
-                e.setKickMessage(ChatUtil.toLines(
-                        " ",
-                        "&4&lEthernal &8⏐ &fYou are " + (info.isIp() ? "IP Banned!" : "Banned!"),
-                        " ",
-                        "&7Reason: &f" + info.getReason(),
-                        "&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(info.getExpiration() - System.currentTimeMillis())
-                        )));
-            }
+        BanInfo info = databaseManager.getBanInfo(e.getName());
+
+        if (info == null) return;
+
+        if (databaseManager.isIPBanned(e.getAddress().getHostAddress())) {
+            e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_BANNED);
+            e.setKickMessage(ChatUtil.toLines(
+                    " ",
+                    "&4&lEthernal &8⏐ &fYou are Blacklisted!",
+                    " ",
+                    "&7Reason: &f" + info.getReason()
+            ));
+        } else if (databaseManager.isPunished(e.getUniqueId(), Punishment.BAN)) {
+            boolean perm = info.getExpiration() == -1;
+            e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_BANNED);
+            e.setKickMessage(ChatUtil.toLines(
+                    " ",
+                    "&4&lEthernal &8⏐ &fYou are Banned!",
+                    " ",
+                    "&7Reason: &f" + info.getReason(),
+                    "&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(info.getExpiration() - System.currentTimeMillis())
+                    )));
         }
     }
 

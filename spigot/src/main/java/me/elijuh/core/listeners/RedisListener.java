@@ -59,138 +59,142 @@ public class RedisListener extends RedisPubSubAdapter<String, String> {
                 break;
             }
             case "PUNISHMENT": {
-                PunishmentInfo punishment = manager.getGSON().fromJson(json, PunishmentInfo.class);
-                switch (punishment.getType()) {
-                    case KICK: {
-                        if (Core.i().getUser(punishment.getPunished()) != null) {
-                            Core.i().getUser(punishment.getPunished()).kick(
-                                    "&4&lEthernal &8⏐ &fKicked",
-                                " ",
-                                "&7Reason: &f" + punishment.getReason());
-                        }
+                handlePunishment(manager.getGSON().fromJson(json, PunishmentInfo.class));
+                break;
+            }
+        }
+    }
 
-                        for (User user : Core.i().getUsers()) {
-                            if (user.isStaff()) {
-                                user.sendMessage("&8&m------------------------------------------");
-                                user.sendMessage(punishment.getExecutorDisplay() + " &7kicked " +
-                                        punishment.getPunishedDisplay());
-                                user.sendMessage("&7Reason: &f" + punishment.getReason());
-                                user.sendMessage("&8&m------------------------------------------");
-                            }
-                        }
-                        break;
-                    }
-                    case BAN: {
-                        if (punishment.isRemoval()) {
-                            for (User user : Core.i().getUsers()) {
-                                if (user.isStaff()) {
-                                    user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage(punishment.getExecutorDisplay() + " &7unbanned " +
-                                            punishment.getPunishedDisplay());
-                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
-                                    user.sendMessage("&8&m------------------------------------------");
-                                }
-                            }
-                        } else {
-                            boolean perm = punishment.getLength() == -1;
-                            if (Core.i().getUser(punishment.getPunished()) != null) {
-                                Core.i().getUser(punishment.getPunished()).kick(
-                                        "&4&lEthernal &8⏐ &fYou are Banned!",
-                                        " ",
-                                        "&7Reason: &f" + punishment.getReason(),
-                                        "&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())));
-                            }
+    private void handlePunishment(PunishmentInfo punishment) {
+        switch (punishment.getType()) {
+            case KICK: {
+                if (Core.i().getUser(punishment.getPunished()) != null) {
+                    Core.i().getUser(punishment.getPunished()).kick(
+                            "&4&lEthernal &8⏐ &fKicked",
+                            " ",
+                            "&7Reason: &f" + punishment.getReason());
+                }
 
-                            for (User user : Core.i().getUsers()) {
-                                if (user.isStaff()) {
-                                    user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage(punishment.getExecutorDisplay() + (perm ? " &7banned " : " &7temporarily banned ") +
-                                            punishment.getPunishedDisplay());
-                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
-                                    user.sendMessage("&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())));
-                                    user.sendMessage("&8&m------------------------------------------");
-                                }
-                            }
-                        }
-                        break;
-                    }
-                    case IPBAN: {
-                        if (punishment.isRemoval()) {
-                            for (User user : Core.i().getUsers()) {
-                                if (user.isStaff()) {
-                                    user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage(punishment.getExecutorDisplay() + " &7unblacklisted " +
-                                            punishment.getPunishedDisplay());
-                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
-                                    user.sendMessage("&8&m------------------------------------------");
-                                }
-                            }
-                        } else {
-                            String punished = punishment.getPunished();
-                            String uuid = databaseManager.getUUID(punished);
-                            String ip = databaseManager.getIP(uuid);
-
-                            for (User user : Core.i().getUsers()) {
-                                if (databaseManager.getIP(user.getPlayer().getUniqueId().toString()).equals(ip)) {
-                                    user.kick(
-                                            "&4&lEthernal &8⏐ &fYou are IPBanned!",
-                                            " ",
-                                            "&7Reason: &f" + punishment.getReason(),
-                                            "&7Duration: &fPermanent");
-                                }
-                            }
-
-                            for (User user : Core.i().getUsers()) {
-                                if (user.isStaff()) {
-                                    user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage(punishment.getExecutorDisplay() +  " &eblacklisted " +
-                                            punishment.getPunishedDisplay());
-                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
-                                    user.sendMessage("&7Duration: &fPermanent");
-                                    user.sendMessage("&8&m------------------------------------------");
-                                }
-                            }
-                        }
-                        break;
-                    }
-                    case MUTE: {
-                        User u = Core.i().getUser(punishment.getPunished());
-                        if (punishment.isRemoval()) {
-                            if (u != null) {
-                                u.sendMessage(ChatUtil.color("&aYou have been unmuted."));
-                            }
-
-                            for (User user : Core.i().getUsers()) {
-                                if (user.isStaff()) {
-                                    user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage(punishment.getExecutorDisplay() + " &7unmuted " +
-                                            punishment.getPunishedDisplay());
-                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
-                                    user.sendMessage("&8&m------------------------------------------");
-                                }
-                            }
-                        } else {
-                            boolean perm = punishment.getLength() == -1;
-                            if (u != null) {
-                                u.sendMessage(" ");
-                                u.sendMessage("&cYou have been muted! &8(&7Reason: &f" + punishment.getReason() + " &8| &7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())) + "&8)");
-                                u.sendMessage(" ");
-                            }
-
-                            for (User user : Core.i().getUsers()) {
-                                if (user.isStaff()) {
-                                    user.sendMessage("&8&m------------------------------------------");
-                                    user.sendMessage(punishment.getExecutorDisplay() + (perm ? " &7muted " : " &7temporarily muted ") +
-                                            punishment.getPunishedDisplay());
-                                    user.sendMessage("&7Reason: &f" + punishment.getReason());
-                                    user.sendMessage("&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())));
-                                    user.sendMessage("&8&m------------------------------------------");
-                                }
-                            }
-                        }
-                        break;
+                for (User user : Core.i().getUsers()) {
+                    if (user.isStaff()) {
+                        user.sendMessage("&8&m------------------------------------------");
+                        user.sendMessage(punishment.getExecutorDisplay() + " &7kicked " +
+                                punishment.getPunishedDisplay());
+                        user.sendMessage("&7Reason: &f" + punishment.getReason());
+                        user.sendMessage("&8&m------------------------------------------");
                     }
                 }
+                break;
+            }
+            case BAN: {
+                if (punishment.isRemoval()) {
+                    for (User user : Core.i().getUsers()) {
+                        if (user.isStaff()) {
+                            user.sendMessage("&8&m------------------------------------------");
+                            user.sendMessage(punishment.getExecutorDisplay() + " &7unbanned " +
+                                    punishment.getPunishedDisplay());
+                            user.sendMessage("&7Reason: &f" + punishment.getReason());
+                            user.sendMessage("&8&m------------------------------------------");
+                        }
+                    }
+                } else {
+                    boolean perm = punishment.getLength() == -1;
+                    if (Core.i().getUser(punishment.getPunished()) != null) {
+                        Core.i().getUser(punishment.getPunished()).kick(
+                                "&4&lEthernal &8⏐ &fYou are Banned!",
+                                " ",
+                                "&7Reason: &f" + punishment.getReason(),
+                                "&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())));
+                    }
+
+                    for (User user : Core.i().getUsers()) {
+                        if (user.isStaff()) {
+                            user.sendMessage("&8&m------------------------------------------");
+                            user.sendMessage(punishment.getExecutorDisplay() + (perm ? " &7banned " : " &7temporarily banned ") +
+                                    punishment.getPunishedDisplay());
+                            user.sendMessage("&7Reason: &f" + punishment.getReason());
+                            user.sendMessage("&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())));
+                            user.sendMessage("&8&m------------------------------------------");
+                        }
+                    }
+                }
+                break;
+            }
+            case IPBAN: {
+                if (punishment.isRemoval()) {
+                    for (User user : Core.i().getUsers()) {
+                        if (user.isStaff()) {
+                            user.sendMessage("&8&m------------------------------------------");
+                            user.sendMessage(punishment.getExecutorDisplay() + " &7unblacklisted " +
+                                    punishment.getPunishedDisplay());
+                            user.sendMessage("&7Reason: &f" + punishment.getReason());
+                            user.sendMessage("&8&m------------------------------------------");
+                        }
+                    }
+                } else {
+                    String punished = punishment.getPunished();
+                    String uuid = databaseManager.getUUID(punished);
+                    String ip = databaseManager.getIP(uuid);
+
+                    for (User user : Core.i().getUsers()) {
+                        if (databaseManager.getIP(user.getPlayer().getUniqueId().toString()).equals(ip)) {
+                            user.kick(
+                                    "&4&lEthernal &8⏐ &fYou are IPBanned!",
+                                    " ",
+                                    "&7Reason: &f" + punishment.getReason(),
+                                    "&7Duration: &fPermanent");
+                        }
+                    }
+
+                    for (User user : Core.i().getUsers()) {
+                        if (user.isStaff()) {
+                            user.sendMessage("&8&m------------------------------------------");
+                            user.sendMessage(punishment.getExecutorDisplay() +  " &7blacklisted " +
+                                    punishment.getPunishedDisplay());
+                            user.sendMessage("&7Reason: &f" + punishment.getReason());
+                            user.sendMessage("&7Duration: &fPermanent");
+                            user.sendMessage("&8&m------------------------------------------");
+                        }
+                    }
+                }
+                break;
+            }
+            case MUTE: {
+                User u = Core.i().getUser(punishment.getPunished());
+                if (punishment.isRemoval()) {
+                    if (u != null) {
+                        u.sendMessage(ChatUtil.color("&aYou have been unmuted."));
+                    }
+
+                    for (User user : Core.i().getUsers()) {
+                        if (user.isStaff()) {
+                            user.sendMessage("&8&m------------------------------------------");
+                            user.sendMessage(punishment.getExecutorDisplay() + " &7unmuted " +
+                                    punishment.getPunishedDisplay());
+                            user.sendMessage("&7Reason: &f" + punishment.getReason());
+                            user.sendMessage("&8&m------------------------------------------");
+                        }
+                    }
+                } else {
+                    boolean perm = punishment.getLength() == -1;
+                    if (u != null) {
+                        u.sendMessage(" ");
+                        u.sendMessage("&cYou have been muted! &8(&7Reason: &f" + punishment.getReason() + " &8| &7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())) + "&8)");
+                        u.sendMessage(" ");
+                    }
+
+                    for (User user : Core.i().getUsers()) {
+                        if (user.isStaff()) {
+                            user.sendMessage("&8&m------------------------------------------");
+                            user.sendMessage(punishment.getExecutorDisplay() + (perm ? " &7muted " : " &7temporarily muted ") +
+                                    punishment.getPunishedDisplay());
+                            user.sendMessage("&7Reason: &f" + punishment.getReason());
+                            user.sendMessage("&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(punishment.getLength())));
+                            user.sendMessage("&8&m------------------------------------------");
+                        }
+                    }
+                }
+                break;
             }
         }
     }
