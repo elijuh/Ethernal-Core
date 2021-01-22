@@ -16,7 +16,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 
 import java.io.File;
@@ -57,15 +56,6 @@ public class PlayerListener implements Listener {
                     "&7Reason: &f" + info.getReason(),
                     "&7Duration: &f" + (perm ? "Permanent" : ChatUtil.formatMillis(info.getExpiration() - System.currentTimeMillis())
                     )));
-        }
-    }
-
-    @EventHandler
-    public void on(InventoryClickEvent e) {
-        if (e.getInventory().getHolder() != null) {
-            if (!e.getWhoClicked().hasPermission("core.invsee.edit") && !e.getWhoClicked().equals(e.getInventory().getHolder())) {
-                e.setCancelled(true);
-            }
         }
     }
 

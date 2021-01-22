@@ -227,7 +227,6 @@ public class DatabaseManager {
                 statement.setString(2, ip);
                 statement.setString(3, display.replace("§", "&"));
                 statement.setString(4, uuid);
-                statement.executeUpdate();
             } else {
                 statement = connection.prepareStatement("INSERT INTO userdata(`UUID`, `IP`, `name`, `display`) VALUES(?, ?, ?, ?)");
                 statement.setString(1, uuid);

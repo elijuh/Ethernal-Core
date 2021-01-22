@@ -25,6 +25,10 @@ public class ReplyCommand extends SpigotCommand {
     @Override
     public void onExecute(Player p, String[] args) {
         User user = Core.i().getUser(p);
+        if (user.isMuted()) {
+            user.sendMessage(ChatUtil.color("&cYou cannot message whilst muted!"));
+            return;
+        }
         Player target;
         User targetUser;
 

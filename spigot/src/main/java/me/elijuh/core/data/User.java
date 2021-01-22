@@ -32,6 +32,10 @@ public class User {
         return player.hasPermission("core.staff");
     }
 
+    public boolean isMuted() {
+        return Core.i().getDatabaseManager().isPunished(player.getUniqueId(), Punishment.MUTE);
+    }
+
     public void unload() {
         if (StaffUtil.isVanished(player)) {
             StaffManager.disableVanish(player);
